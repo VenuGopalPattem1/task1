@@ -2,6 +2,7 @@ package com.vg.ratelimiter.Controller;
 
 import org.springframework.web.bind.annotation.*;
 
+import com.vg.ratelimiter.Entity.AuthUser;
 import com.vg.ratelimiter.Entity.User;
 import com.vg.ratelimiter.repo.UserRepository;
 import com.vg.ratelimiter.utils.JwtUtil;
@@ -19,32 +20,30 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestParam String username,
-                           @RequestParam String password) {
+    public String register(@RequestBody AuthUser user) {
 
-        if (userRepository.findByUsername(username).isPresent()) {
+        if (userRepository.findByUsername(user.getName()).isPresent()) {
             return "User already exists";
         }
 
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(password); // NOTE: plain text (for simplicity)
+        User us = new User();
+        us.setUsername(user.getName());
+        us.setPassword(user.getPassword()); // NOTE: plain text (for simplicity)
 
-        userRepository.save(user);
+        userRepository.save(us);
         return "User registered successfully";
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String username,
-                        @RequestParam String password) {
+    public String login(@RequestBody AuthUser auth) {
 
-        Optional<User> user = userRepository.findByUsername(username);
+        Optional<User> user = userRepository.findByUsername(auth.getName());
 
         if (user.isEmpty() ||
-            !user.get().getPassword().equals(password)) {
+            !user.get().getPassword().equals(auth.getPassword())) {
             return "Invalid credentials";
         }
 
-        return JwtUtil.generateToken(username);
+        return JwtUtil.generateToken(auth.getName());
     }
 }

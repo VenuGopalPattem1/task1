@@ -2,6 +2,7 @@ package com.vg.ratelimiter.Controller;
 
 import org.springframework.web.bind.annotation.*;
 
+import com.vg.ratelimiter.Entity.Ticket;
 import com.vg.ratelimiter.service.RateLimiterService;
 import com.vg.ratelimiter.utils.JwtUtil;
 
@@ -17,8 +18,7 @@ public class BookingController {
 
     @PostMapping("/book")
     public String book(@RequestHeader("Authorization") String header,
-                       @RequestParam String movie,
-                       @RequestParam int seats) {
+                       @RequestBody Ticket movie) {
 
         if (header == null || !header.startsWith("Bearer ")) {
             return "Unauthorized";
@@ -37,6 +37,6 @@ public class BookingController {
             return "Too many booking attempts. Try later.";
         }
 
-        return "Booking successful for " + movie + " by " + username;
+        return "Booking successful for " + movie.getName() + " by " + username;
     }
 }
